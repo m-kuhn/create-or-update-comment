@@ -37,6 +37,32 @@ This action was created to help facilitate a GitHub Actions "ChatOps" solution i
           reaction-type: eyes
 ```
 
+### Keep a single comment updated
+
+```yml
+      # This finds the first comment id from the GitHub Actions bot.
+      # If it hasn't commented on the issue or PR yet then it returns an empty string.
+      - name: Find comment
+        id: find_comment
+        uses: ./.github/actions/find-comment
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create or update comment
+        # I forked a version of this repo to implement the above mentioned conditional
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          # If the comment-id is blank, this will create a new comment.
+          # Otherwise, it will update the comment.
+          comment-id: ${{ steps.find_comment.outputs.comment-id }}
+          body: |
+            Create or update this comment.
+          edit-mode: replace
+        if: success()
+```
+
 ### Add a comment reaction
 
 ```yml
